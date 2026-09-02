@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block contenido %}
+<h1>Deuda publica a 10 anos</h1>
+<p class="bajada">Lo que le cuesta a cada pais del euro pedir dinero prestado a diez anos. La serie del Banco Central Europeo, mensual, desde los anos noventa.</p>
+
+<section class="resultado">
+  <p class="resultado-intro">Bono espanol a 10 anos, ultimo dato</p>
+  <p class="cifrota" id="actual">—</p>
+  <p class="rango" id="prima"></p>
+</section>
+
+<h2>Comparativa</h2>
+<p class="apunte">Toca un pais para verlo solo, o dejalos todos. La linea de Grecia en 2012 explica bastante bien que fue la crisis del euro.</p>
+<div class="mandos">
+  <div class="mando">
+    <label for="pais">Pais</label>
+    <select id="pais">
+      {%- for cod, nombre in paises %}<option value="{{ cod }}"{% if cod == 'ES' %} selected{% endif %}>{{ nombre }}</option>{% endfor %}
+    </select>
+  </div>
+</div>
+<div id="gr-bono"></div>
+
+<div class="tarjetas">
+  <div><span class="dato-valor" id="d-max">—</span><span class="dato-nombre">maximo de la serie</span></div>
+  <div><span class="dato-valor" id="d-min">—</span><span class="dato-nombre">minimo de la serie</span></div>
+  <div><span class="dato-valor" id="d-media">—</span><span class="dato-nombre">media historica</span></div>
+</div>
+
+<h2>Situacion actual de todos</h2>
+<table>
+  <thead><tr><th>Pais</th><th>Ultimo</th><th>Diferencia con Alemania</th></tr></thead>
+  <tbody id="tabla"></tbody>
+</table>
+
+<h2>Como se lee esto</h2>
+<p>El numero es el interes anual que paga el Estado por su deuda a diez anos. Cuando sube, el mercado esta pidiendo mas a cambio de prestar, normalmente porque ve mas riesgo o porque espera mas inflacion.</p>
+<p>La diferencia con Alemania es lo que en las noticias llaman prima de riesgo. Alemania se usa como referencia porque es el emisor que el mercado considera mas seguro de la zona euro. En 2012 la prima espanola paso de 600 puntos basicos; ahora se mueve en otro orden de magnitud completamente distinto.</p>
+<p>Un detalle que despista: este tipo no es lo que paga el Tesoro por la deuda que ya emitio, sino lo que pagaria por emitir hoy. La factura real de intereses se mueve mucho mas despacio, porque arrastra emisiones viejas.</p>
+{% endblock %}
+
+{% block fuente %}
+<p>Fuente: Banco Central Europeo, dataflow IRS (tipos de interes a largo plazo con fines de convergencia).</p>
+{% endblock %}
+
+{% block script %}
+<script id="datos" type="application/json">{{ datos_json | safe }}</script>
+<script>
+(function(){
+  const D = JSON.parse(document.getElementById("datos").textContent);
+  const $ = i => document.getElementById(i);
+  const n = Grafica.numero;
+  const pct = v => n(v,2) + " %";
+
+  const de = D.paises["DE"];
+  Grafica.tabla("#tabla", Object.keys(D.paises).map(c => {
+    const p = D.paises[c];
+    const dif = de ? (p.ultimo - de.ultimo) * 100 : null;
+    return [p.nombre, pct(p.ultimo),
+            c === "DE" ? "—" : (dif >= 0 ? "+" : "") + n(dif,0) + " pb"];
+  }));
+
+  const es = D.paises["ES"];
+  if(es){
+    $("actual").textContent = pct(es.ultimo);
+    if(de) Grafica.frase("#prima", ["Son ",
+      {fuerte: n((es.ultimo-de.ultimo)*100,0) + " puntos basicos"},
+      " por encima de Alemania."]);
+  }
+
+  function pintar(cod){
+    const p = D.paises[cod];
+    if(!p) return;
+    $("d-max").textContent = pct(p.max);
+    $("d-min").textContent = pct(p.min);
+    $("d-media").textContent = pct(p.media);
+    Grafica.linea("#gr-bono", {
+      pasado: p.serie.map(x => ({x: x.f, y: x.v})),
+      futuro: [],
+      formato: pct,
+      escalaCorta: v => n(v,1)+"%",
+      titulo: "Bono a 10 anos de " + p.nombre
+    });
+  }
+
+  $("pais").addEventListener("change", e => pintar(e.target.value));
+  pintar("ES");
+})();
+</script>
+{% endblock %}
