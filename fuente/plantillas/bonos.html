@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block contenido %}
-<h1>Deuda publica a 10 anos</h1>
-<p class="bajada">Lo que le cuesta a cada pais del euro pedir dinero prestado a diez anos. La serie del Banco Central Europeo, mensual, desde los anos noventa.</p>
+<h1>Deuda publica a 10 años</h1>
+<p class="bajada">Lo que le cuesta a cada pais del euro pedir dinero prestado a diez años. La serie del Banco Central Europeo, mensual, desde los años noventa.</p>
 
 <section class="resultado">
-  <p class="resultado-intro">Bono espanol a 10 anos, ultimo dato</p>
+  <p class="resultado-intro">Bono español a 10 años, ultimo dato</p>
   <p class="cifrota" id="actual">—</p>
   <p class="rango" id="prima"></p>
 </section>
@@ -34,8 +34,8 @@
 </table>
 
 <h2>Como se lee esto</h2>
-<p>El numero es el interes anual que paga el Estado por su deuda a diez anos. Cuando sube, el mercado esta pidiendo mas a cambio de prestar, normalmente porque ve mas riesgo o porque espera mas inflacion.</p>
-<p>La diferencia con Alemania es lo que en las noticias llaman prima de riesgo. Alemania se usa como referencia porque es el emisor que el mercado considera mas seguro de la zona euro. En 2012 la prima espanola paso de 600 puntos basicos; ahora se mueve en otro orden de magnitud completamente distinto.</p>
+<p>El numero es el interes anual que paga el Estado por su deuda a diez años. Cuando sube, el mercado esta pidiendo mas a cambio de prestar, normalmente porque ve mas riesgo o porque espera mas inflacion.</p>
+<p>La diferencia con Alemania es lo que en las noticias llaman prima de riesgo. Alemania se usa como referencia porque es el emisor que el mercado considera mas seguro de la zona euro. En 2012 la prima española paso de 600 puntos basicos; ahora se mueve en otro orden de magnitud completamente distinto.</p>
 <p>Un detalle que despista: este tipo no es lo que paga el Tesoro por la deuda que ya emitio, sino lo que pagaria por emitir hoy. La factura real de intereses se mueve mucho mas despacio, porque arrastra emisiones viejas.</p>
 {% endblock %}
 
@@ -79,7 +79,7 @@
       futuro: [],
       formato: pct,
       escalaCorta: v => n(v,1)+"%",
-      titulo: "Bono a 10 anos de " + p.nombre
+      titulo: "Bono a 10 años de " + p.nombre
     });
   }
 
