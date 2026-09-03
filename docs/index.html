@@ -46,6 +46,11 @@
     </select>
   </div>
 </div>
+<div class="rango-tiempo" role="group" aria-label="Periodo de la grafica">
+  <button type="button" data-rango="ano">Ultimo año</button>
+  <button type="button" data-rango="anos5">Ultimos 5 años</button>
+  <button type="button" data-rango="todo" aria-current="true">Todo el historico</button>
+</div>
 <div id="gr-bono"></div>
 
 <div class="tarjetas">
@@ -100,14 +105,26 @@
       " por encima de Alemania."]);
   }
 
-  function pintar(cod){
-    const p = D.paises[cod];
+  let paisActual = "ES";
+  let rangoActual = "todo";
+
+  function recortar(serie, rango){
+    if(rango === "todo") return serie;
+    const ultima = new Date(serie[serie.length-1].f);
+    const desde = new Date(ultima);
+    if(rango === "ano")   desde.setFullYear(desde.getFullYear() - 1);
+    if(rango === "anos5") desde.setFullYear(desde.getFullYear() - 5);
+    const isoDesde = desde.toISOString().slice(0,10);
+    const recorte = serie.filter(x => x.f >= isoDesde);
+    return recorte.length >= 3 ? recorte : serie;
+  }
+
+  function dibujar(){
+    const p = D.paises[paisActual];
     if(!p) return;
-    $("d-max").textContent = pct(p.max);
-    $("d-min").textContent = pct(p.min);
-    $("d-media").textContent = pct(p.media);
+    const serie = recortar(p.serie, rangoActual);
     Grafica.linea("#gr-bono", {
-      pasado: p.serie.map(x => ({x: x.f, y: x.v})),
+      pasado: serie.map(x => ({x: x.f, y: x.v})),
       futuro: [],
       formato: pct,
       escalaCorta: v => n(v,1)+"%",
@@ -115,7 +132,28 @@
     });
   }
 
+  function pintar(cod){
+    const p = D.paises[cod];
+    if(!p) return;
+    paisActual = cod;
+    $("d-max").textContent = pct(p.max);
+    $("d-min").textContent = pct(p.min);
+    $("d-media").textContent = pct(p.media);
+    dibujar();
+  }
+
   $("pais").addEventListener("change", e => pintar(e.target.value));
+
+  document.querySelectorAll(".rango-tiempo button").forEach(b => {
+    b.addEventListener("click", () => {
+      rangoActual = b.dataset.rango;
+      document.querySelectorAll(".rango-tiempo button").forEach(o =>
+        o.removeAttribute("aria-current"));
+      b.setAttribute("aria-current", "true");
+      dibujar();
+    });
+  });
+
   pintar("ES");
 })();
 </script>
